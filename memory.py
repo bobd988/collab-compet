@@ -1,16 +1,14 @@
+import numpy as np
 import random
 from collections import namedtuple, deque
-
-import numpy as np
 import torch
 
-from MADDPG.hyperparameters import *
-
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class ReplayBuffer:
     """Fixed-size buffer to store experience tuples."""
 
-    def __init__(self, action_size, buffer_size, batch_size):
+    def __init__(self, action_size, buffer_size, batch_size, seed):
         """Initialize a ReplayBuffer object.
         Params
         ======
@@ -18,15 +16,18 @@ class ReplayBuffer:
             batch_size (int): size of each training batch
         """
         self.action_size = action_size
-        self.memory = deque(maxlen=buffer_size)
+        self.memory = deque(maxlen=buffer_size)  # internal memory (deque)
         self.batch_size = batch_size
         self.experience = namedtuple("Experience", field_names=["state", "action", "reward", "next_state", "done"])
-        self.seed = random.seed(RANDOM_SEED)
+        self.seed = random.seed(seed)
     
     def add(self, state, action, reward, next_state, done):
         """Add a new experience to memory."""
         e = self.experience(state, action, reward, next_state, done)
         self.memory.append(e)
+        
+        #if (len(self.memory)%10000==0):
+        #    print("\n[INFO] Replay memory size =", len(self.memory))
     
     def sample(self):
         """Randomly sample a batch of experiences from memory."""
