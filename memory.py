@@ -1,8 +1,10 @@
 import numpy as np
 import random
+import copy
 from collections import namedtuple, deque
 import torch
-
+import torch.nn.functional as F
+import torch.optim as optim
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class ReplayBuffer:
@@ -25,9 +27,6 @@ class ReplayBuffer:
         """Add a new experience to memory."""
         e = self.experience(state, action, reward, next_state, done)
         self.memory.append(e)
-        
-        #if (len(self.memory)%10000==0):
-        #    print("\n[INFO] Replay memory size =", len(self.memory))
     
     def sample(self):
         """Randomly sample a batch of experiences from memory."""
